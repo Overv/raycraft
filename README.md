@@ -13,8 +13,8 @@ The implementation will be based on `OpenGL 4.0`. More details will follow as th
 
 ## Todo
 
-* Basic voxel renderer
 * Support for materials and textures
+* Octree optimization
 * Navigating through the world
 * Modifying the world
 

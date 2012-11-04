@@ -26,7 +26,7 @@ int main()
 	// Center window on screen
 	GLFWvidmode videoMode;
 	glfwGetDesktopMode(&videoMode);
-	//glfwSetWindowPos(videoMode.Width / 2 - WIDTH / 2, videoMode.Height / 2 - HEIGHT / 2);
+	glfwSetWindowPos(videoMode.Width / 2 - WIDTH / 2, videoMode.Height / 2 - HEIGHT / 2);
 
 	// Create world with 'hi'
 	rc::world world(10, 10, 10);
