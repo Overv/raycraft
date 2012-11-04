@@ -2,7 +2,7 @@
 
 CC = g++
 CCC = gcc
-CCFLAGS = -g -std=c++0x
+CCFLAGS = -O3 -std=c++0x
 
 # Program
 

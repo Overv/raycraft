@@ -29,13 +29,13 @@ int main()
 	glfwSetWindowPos(videoMode.Width / 2 - WIDTH / 2, videoMode.Height / 2 - HEIGHT / 2);
 
 	// Create world
-	rc::world world(1, 1, 1);
-	world.set(0, 0, 0, rc::material::GRASS);
+	rc::world world(2, 2, 2);
+	world.createFlatWorld(1);
+	world.set(0, 0, 1, rc::material::GRASS);
 
 	// Create renderer
 	rc::renderer renderer;
 	renderer.setWorld(world);
-	renderer.setCameraTarget(glm::vec3(2, 2, 2), glm::vec3(0, 0, 0), 45.0f, (float)WIDTH / (float)HEIGHT);
 
 	// Main loop
 	int frames = 0, curTime = time(nullptr);
@@ -43,8 +43,12 @@ int main()
 
 	while(glfwGetWindowParam(GLFW_OPENED))
 	{
+		// Update view
+		renderer.setCameraTarget(glm::vec3(cos(glfwGetTime()) * 3.0f, sin(glfwGetTime()) * 3.0f, 2.5f), glm::vec3(0, 0, 0), 70.0f, (float)WIDTH / (float)HEIGHT);
+
 		// Draw frame
 		renderer.drawFrame();
+
 		glfwSwapBuffers();
 
 		// Measure and display fps
@@ -57,6 +61,8 @@ int main()
 			frames = 0;
 			curTime = time(nullptr);
 		}
+
+		glfwSleep(0.016);
 	}
 
 	// Clean up

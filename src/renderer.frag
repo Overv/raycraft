@@ -9,7 +9,7 @@ uniform mat4 invProjView;
 
 // World info
 uniform usampler3D blockData;
-uint sx, sy, sz;
+uniform uint sx, sy, sz;
 
 // Project screen space vector in object space
 vec3 unproject(vec2 coord)
@@ -37,7 +37,7 @@ vec4 rayCube(vec3 origin, vec3 dir, vec3 pos)
 	// Transform world so that cube is located at (0, 0, 0) to simplify math
 	origin -= pos;
 
-	vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+	vec3 color = vec3(0.0, 0.0, 0.0);
 	float dist = 1.0 / 0.0;
 	vec3 hPos;
 
@@ -45,48 +45,65 @@ vec4 rayCube(vec3 origin, vec3 dir, vec3 pos)
 	hPos = rayPlaneIntersect(origin, dir, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0));
 	if (hPos.x > 0.0 && hPos.x < 1.0 && hPos.y > 0.0 && hPos.y < 1.0 && distance(origin, hPos) < dist) {
 		dist = distance(origin, hPos);
-		color = vec4(0.0, 0.0, 1.0, 1.0);
+		color = vec3(0.0, 0.0, 1.0);
 	}
 
 	// Top
 	hPos = rayPlaneIntersect(origin, dir, vec3(0.0, 0.0, 1.0), vec3(0.0, 0.0, 1.0));
 	if (hPos.x > 0.0 && hPos.x < 1.0 && hPos.y > 0.0 && hPos.y < 1.0 && distance(origin, hPos) < dist) {
 		dist = distance(origin, hPos);
-		color = vec4(0.0, 0.0, 1.0, 1.0);
+		color = vec3(0.0, 0.0, 1.0);
 	}
 
 	// Left
 	hPos = rayPlaneIntersect(origin, dir, vec3(0.0, 0.0, 0.0), vec3(-1.0, 0.0, 0.0));
 	if (hPos.y > 0.0 && hPos.y < 1.0 && hPos.z > 0.0 && hPos.z < 1.0 && distance(origin, hPos) < dist) {
 		dist = distance(origin, hPos);
-		color = vec4(1.0, 0.0, 0.0, 1.0);
+		color = vec3(1.0, 0.0, 0.0);
 	}
 
 	// Right
 	hPos = rayPlaneIntersect(origin, dir, vec3(1.0, 0.0, 0.0), vec3(1.0, 0.0, 0.0));
 	if (hPos.y > 0.0 && hPos.y < 1.0 && hPos.z > 0.0 && hPos.z < 1.0 && distance(origin, hPos) < dist) {
 		dist = distance(origin, hPos);
-		color = vec4(1.0, 0.0, 0.0, 1.0);
+		color = vec3(1.0, 0.0, 0.0);
 	}
 
 	// Rear
 	hPos = rayPlaneIntersect(origin, dir, vec3(0.0, 0.0, 0.0), vec3(0.0, -1.0, 0.0));
 	if (hPos.x > 0.0 && hPos.x < 1.0 && hPos.z > 0.0 && hPos.z < 1.0 && distance(origin, hPos) < dist) {
 		dist = distance(origin, hPos);
-		color = vec4(0.0, 1.0, 0.0, 1.0);
+		color = vec3(0.0, 1.0, 0.0);
 	}
 
 	// Front
 	hPos = rayPlaneIntersect(origin, dir, vec3(0.0, 1.0, 0.0), vec3(0.0, 1.0, 0.0));
 	if (hPos.x > 0.0 && hPos.x < 1.0 && hPos.z > 0.0 && hPos.z < 1.0 && distance(origin, hPos) < dist) {
 		dist = distance(origin, hPos);
-		color = vec4(0.0, 1.0, 0.0, 1.0);
+		color = vec3(0.0, 1.0, 0.0);
 	}
 
-	return color;
+	return vec4(color, dist);
 }
 
 void main()
 {
-	outColor = rayCube(viewOrigin, unproject(_position), vec3(0.0, 0.0, 0.0));
+	float dist = 1.0 / 0.0;
+
+	for (uint x = 0; x < sx; x++) {
+		for (uint y = 0; y < sy; y++) {
+			for (uint z = 0; z < sz; z++) {
+				// Check if this block is empty
+				if (getBlock(x, y, z) == 0)
+					continue;
+
+				// Find an intersection with this block and check if it's the closest so far
+				vec4 res = rayCube(viewOrigin, unproject(_position), vec3(x, y, z));
+				if (res.w < dist) {
+					dist = res.w;
+					outColor = res;
+				}
+			}
+		}
+	}
 }
