@@ -26,12 +26,21 @@ int main()
 	// Center window on screen
 	GLFWvidmode videoMode;
 	glfwGetDesktopMode(&videoMode);
-	glfwSetWindowPos(videoMode.Width / 2 - WIDTH / 2, videoMode.Height / 2 - HEIGHT / 2);
+	//glfwSetWindowPos(videoMode.Width / 2 - WIDTH / 2, videoMode.Height / 2 - HEIGHT / 2);
 
-	// Create world
-	rc::world world(2, 2, 2);
-	world.createFlatWorld(1);
-	world.set(0, 0, 1, rc::material::GRASS);
+	// Create world with 'hi'
+	rc::world world(10, 10, 10);
+	world.createFlatWorld(3);
+	world.set(8, 5, 3, rc::material::GRASS);
+	world.set(8, 5, 4, rc::material::GRASS);
+	world.set(8, 5, 5, rc::material::GRASS);
+	world.set(7, 5, 4, rc::material::GRASS);
+	world.set(6, 5, 3, rc::material::GRASS);
+	world.set(6, 5, 4, rc::material::GRASS);
+	world.set(6, 5, 5, rc::material::GRASS);
+	world.set(4, 5, 3, rc::material::GRASS);
+	world.set(4, 5, 4, rc::material::GRASS);
+	world.set(4, 5, 6, rc::material::GRASS);
 
 	// Create renderer
 	rc::renderer renderer;
@@ -44,7 +53,7 @@ int main()
 	while(glfwGetWindowParam(GLFW_OPENED))
 	{
 		// Update view
-		renderer.setCameraTarget(glm::vec3(cos(glfwGetTime()) * 3.0f, sin(glfwGetTime()) * 3.0f, 2.5f), glm::vec3(0, 0, 0), 70.0f, (float)WIDTH / (float)HEIGHT);
+		renderer.setCameraTarget(glm::vec3(12, 12, 8), glm::vec3(5, 5, 0), 70.0f, (float)WIDTH / (float)HEIGHT);
 
 		// Draw frame
 		renderer.drawFrame();

@@ -25,7 +25,7 @@ namespace rc
 	public:
 		world(int sx, int sy, int sz);
 
-		void createFlatWorld(int height);
+		void createFlatWorld(int height, material::material_t mat = material::GRASS);
 
 		int sizeX() const;
 		int sizeY() const;
@@ -33,10 +33,11 @@ namespace rc
 
 		void set(int x, int y, int z, material::material_t mat);
 
-		material::material_t get(int index) const;
 		material::material_t get(int x, int y, int z) const;
 
-		int toIndex(int x, int y, int z) const;
+		bool is_surrounded(int x, int y, int z) const;
+
+		int toFlatIndex(int x, int y, int z) const;
 
 	private:
 		int sx, sy, sz;

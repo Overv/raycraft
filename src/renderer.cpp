@@ -53,11 +53,12 @@ namespace rc
 		}
 
 		// Prepare data for shader
+		// Blocks where all sides face other blocks cannot be seen, so can be considered empty
 		std::vector<unsigned int> blockData(w.sizeX() * w.sizeY() * w.sizeZ());
-		for (int i = 0; i < w.sizeX() * w.sizeY() * w.sizeZ(); i++)
-		{
-			blockData[i] = (unsigned int)w.get(i);
-		}
+		for (int x = 0; x < w.sizeX(); x++)
+			for (int y = 0; y < w.sizeY(); y++)
+				for (int z = 0; z < w.sizeZ(); z++)
+					blockData[w.toFlatIndex(x, y, z)] = w.is_surrounded(x, y, z) ? material::EMPTY : w.get(x, y, z);
 
 		// Upload data as texture
 		glActiveTexture(GL_TEXTURE0);
@@ -81,7 +82,7 @@ namespace rc
 
 	void renderer::setCameraTarget(const glm::vec3& pos, const glm::vec3& target, float fov, float aspect)
 	{
-		glm::mat4 proj = glm::perspective(fov, aspect, 1.0f, 10.f);
+		glm::mat4 proj = glm::perspective(fov, aspect, 1.0f, 100.f);
 		glm::mat4 view = glm::lookAt(pos, target, glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 invProjView = glm::inverse(proj * view);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "invProjView"), 1, GL_FALSE, glm::value_ptr(invProjView));
