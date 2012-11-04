@@ -53,10 +53,10 @@ namespace rc
 		}
 
 		// Prepare data for shader
-		std::vector<unsigned int> blockData(w.sizeX() * w.sizeY() * w.sizeZ());
+		std::vector<GLubyte> blockData(w.sizeX() * w.sizeY() * w.sizeZ());
 		for (int i = 0; i < w.sizeX() * w.sizeY() * w.sizeZ(); i++)
 		{
-			blockData[i] = (unsigned int)w.get(i);
+			blockData[i] = (GLubyte)w.get(i);
 		}
 
 		// Upload data as texture
@@ -65,7 +65,7 @@ namespace rc
 		glBindTexture(GL_TEXTURE_3D, blockDataTexture);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, w.sizeX(), w.sizeY(), w.sizeZ(), 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &blockData[0]);
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, w.sizeX(), w.sizeY(), w.sizeZ(), 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, &blockData[0]);
 
 		// Enable sampler and pass data to shader
 		glUniform1i(glGetUniformLocation(shaderProgram, "blockData"), 0);
