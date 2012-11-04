@@ -1,6 +1,8 @@
 #ifndef RC_WORLD_HPP
 #define RC_WORLD_HPP
 
+#include <vector>
+
 namespace rc
 {
 	/*
@@ -25,14 +27,20 @@ namespace rc
 
 		void createFlatWorld(int height);
 
+		int sizeX() const;
+		int sizeY() const;
+		int sizeZ() const;
+
 		void set(int x, int y, int z, material::material_t mat);
-		material::material_t get(int x, int y, int z);
+
+		material::material_t get(int index) const;
+		material::material_t get(int x, int y, int z) const;
+
+		int toIndex(int x, int y, int z) const;
 
 	private:
 		int sx, sy, sz;
-		material::material_t* blocks;
-
-		int posToIndex(int x, int y, int z);
+		std::vector<material::material_t> blocks;
 	};
 }
 

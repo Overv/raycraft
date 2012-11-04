@@ -27,15 +27,51 @@ namespace rc
 		// Initialize OpenGL
 		initShaders();
 		initVertexData();
+
+		// Block data doesn't exist until world is assigned
+		blockDataTexture = 0;
 	}
 
 	renderer::~renderer()
 	{
+		if (blockDataTexture > 0) {
+			glDeleteTextures(1, &blockDataTexture);
+		}
+
 		glDeleteBuffers(1, &vertexBuffer);
 		glDeleteVertexArrays(1, &vertexArray);
 		glDeleteProgram(shaderProgram);
 		glDeleteShader(fragmentShader);
 		glDeleteShader(vertexShader);
+	}
+
+	void renderer::setWorld(const world& w)
+	{
+		// Clean up previous data
+		if (blockDataTexture > 0) {
+			glDeleteTextures(1, &blockDataTexture);
+		}
+
+		// Prepare data for shader
+		std::vector<unsigned int> blockData(w.sizeX() * w.sizeY() * w.sizeZ());
+		for (int i = 0; i < w.sizeX() * w.sizeY() * w.sizeZ(); i++)
+		{
+			blockData[i] = (unsigned int)w.get(i);
+		}
+
+		// Upload data as texture
+		glActiveTexture(GL_TEXTURE0);
+		glGenTextures(1, &blockDataTexture);
+		glBindTexture(GL_TEXTURE_3D, blockDataTexture);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_R8UI, w.sizeX(), w.sizeY(), w.sizeZ(), 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &blockData[0]);
+
+		// Enable sampler and pass data to shader
+		glUniform1i(glGetUniformLocation(shaderProgram, "blockData"), 0);
+		glUniform1ui(glGetUniformLocation(shaderProgram, "sx"), w.sizeX());
+		glUniform1ui(glGetUniformLocation(shaderProgram, "sy"), w.sizeY());
+		glUniform1ui(glGetUniformLocation(shaderProgram, "sz"), w.sizeZ());
 	}
 
 	void renderer::setCameraDir(const glm::vec3& pos, const glm::vec3& dir, float fov, float aspect)
@@ -52,7 +88,7 @@ namespace rc
 		glUniform3f(glGetUniformLocation(shaderProgram, "viewOrigin"), pos.x, pos.y, pos.z);
 	}
 
-	void renderer::drawFrame()
+	void renderer::drawFrame() const
 	{
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
@@ -72,7 +108,7 @@ namespace rc
 	GLuint renderer::loadShader(const std::string& path, GLenum type)
 	{
 		// Locate shader file and read it
-		std::ifstream file(path.c_str(), std::ios::in | std::ios::ate);
+		std::ifstream file(path.c_str(), std::ios::ate);
 		if (!file.is_open()) file.open(("bin/" + path).c_str(), std::ios::in | std::ios::ate);
 
 		if (!file.is_open() || file.tellg() == 0) {

@@ -29,12 +29,13 @@ int main()
 	glfwSetWindowPos(videoMode.Width / 2 - WIDTH / 2, videoMode.Height / 2 - HEIGHT / 2);
 
 	// Create world
-	rc::world world(4, 4, 4);
-	world.createFlatWorld(2);
+	rc::world world(1, 1, 1);
+	world.set(0, 0, 0, rc::material::GRASS);
 
 	// Create renderer
 	rc::renderer renderer;
-	renderer.setCameraTarget(glm::vec3(1, 1, 1), glm::vec3(0, 0, 0), 45.0f, (float)WIDTH / (float)HEIGHT);
+	renderer.setWorld(world);
+	renderer.setCameraTarget(glm::vec3(2, 2, 2), glm::vec3(0, 0, 0), 45.0f, (float)WIDTH / (float)HEIGHT);
 
 	// Main loop
 	int frames = 0, curTime = time(nullptr);
