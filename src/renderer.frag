@@ -127,6 +127,17 @@ vec4 blockColor(ivec3 block, vec3 pos, vec3 normal)
 	}
 }
 
+// Corrects the normal using the ray direction
+void correctNormal(inout vec3 normal, vec3 rayDir)
+{
+	if (abs(normal.x) > 0.0 && sign(normal.x) == sign(rayDir.x))
+		normal.x = -normal.x;
+	else if (abs(normal.y) > 0.0 && sign(normal.y) == sign(rayDir.y))
+		normal.y = -normal.y;
+	else if (abs(normal.z) > 0.0 && sign(normal.z) == sign(rayDir.z))
+		normal.z *= -1.0;
+}
+
 void main()
 {
 	vec3 rayDir = unproject(_position);
@@ -155,6 +166,10 @@ void main()
 		coord = toBlock(rayPos, rayDir);
 
 		if (getBlock(coord) != 0) {
+			// The normal is currently the one for the previous block
+			// For example, if we hit the top of a block through the bottom of an empty block, we have normal = (0, 0, -1)
+			correctNormal(hitN, rayDir);
+
 			outColor = blockColor(coord, hitP, hitN);
 			return;
 		}

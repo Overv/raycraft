@@ -13,7 +13,6 @@ The implementation will be based on `OpenGL 4.0`. More details will follow as th
 
 ## Todo
 
-* Fix normals
 * Support raytracing from inside world
 * Modifying the world
 * Navigating through the world
