@@ -44,7 +44,7 @@ int main()
 	while(glfwGetWindowParam(GLFW_OPENED))
 	{
 		// Update view
-		renderer.setCameraTarget(glm::vec3(cos(glfwGetTime()) * 6.0f + 1.5f, sin(glfwGetTime()) * 6.0f + 1.5f, 4.5f), glm::vec3(1.5f, 1.5f, 1.5f), 70.0f, (float)WIDTH / (float)HEIGHT);
+		renderer.setCameraTarget(glm::vec3(cos(glfwGetTime()) * 4.0f + 1.5f, sin(glfwGetTime()) * 4.0f + 1.5f, 3.0f), glm::vec3(1.5f, 1.5f, 0.5f), 70.0f, (float)WIDTH / (float)HEIGHT);
 
 		// Draw frame
 		renderer.drawFrame();

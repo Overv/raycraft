@@ -13,6 +13,7 @@ The implementation will be based on `OpenGL 4.0`. More details will follow as th
 
 ## Todo
 
+* Fix projection being dependent on both FOV and nearZ and farZ
 * Fix normals
 * Support raytracing from inside world
 * Navigating through the world
