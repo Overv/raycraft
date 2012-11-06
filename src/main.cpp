@@ -22,6 +22,7 @@ int main()
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
 	glfwOpenWindow(WIDTH, HEIGHT, 0, 0, 0, 0, 0, 0, GLFW_WINDOW);
 	glfwSetWindowTitle("raycraft");
+	glfwSwapInterval(1);
 
 	// Center window on screen
 	GLFWvidmode videoMode;
@@ -40,6 +41,7 @@ int main()
 
 	// Main loop
 	int frames = 0, curTime = time(nullptr), curMouseLeft = 0, curMouseRight = 0;
+	double lastFrame = glfwGetTime();
 	char titleBuf[128];
 
 	while(glfwGetWindowParam(GLFW_OPENED))
@@ -81,9 +83,6 @@ int main()
 			frames = 0;
 			curTime = time(nullptr);
 		}
-
-		// Seems to work smoother than vsync for now
-		glfwSleep(0.016);
 	}
 
 	// Clean up
