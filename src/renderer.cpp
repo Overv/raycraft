@@ -172,7 +172,7 @@ namespace rc
 		std::ifstream file(path.c_str(), std::ios::ate);
 		if (!file.is_open()) file.open(("bin/" + path).c_str(), std::ios::in | std::ios::ate);
 
-		if (!file.is_open() || file.tellg() == 0) {
+		if (!file.is_open() || (int)file.tellg() == 0) {
 			printf("Couldn't load shader file '%s'!\n", path.c_str());
 			return 0;
 		}
