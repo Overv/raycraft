@@ -28,6 +28,9 @@ namespace rc
 		initShaders();
 		initVertexData();
 
+		// Set defaults
+		setSkyColor(glm::vec3(127.0f/255.0f, 204.0f/255.0f, 255.0f/255.0f));
+
 		// Block data doesn't exist until world is assigned
 		blockDataTexture = 0;
 	}
@@ -73,6 +76,11 @@ namespace rc
 		glUniform1ui(glGetUniformLocation(shaderProgram, "sx"), w.sizeX());
 		glUniform1ui(glGetUniformLocation(shaderProgram, "sy"), w.sizeY());
 		glUniform1ui(glGetUniformLocation(shaderProgram, "sz"), w.sizeZ());
+	}
+
+	void renderer::setSkyColor(const glm::vec3& color)
+	{
+		glUniform4f(glGetUniformLocation(shaderProgram, "skyColor"), color.x, color.y, color.z, 1.0f);
 	}
 
 	void renderer::setCameraDir(const glm::vec3& pos, const glm::vec3& dir, float fov, float aspect)
