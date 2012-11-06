@@ -17,25 +17,8 @@ uniform vec4 skyColor;
 // Project screen space vector in object space
 vec3 unproject(vec2 coord)
 {
-	//vec4 v = invProjView * vec4(coord, 1.0, 1.0);
-	//return normalize(v.xyz);
-
-	vec4 viewport = vec4(-1.0, -1.0, 2.0, 2.0);
-
-	vec4 v = vec4(
-		(coord.x - viewport.x) * 2.0 / viewport.z - 1.0,
-		(coord.y - viewport.y) * 2.0 / viewport.w - 1.0,
-		2.0 * 1.0 - 1.0,
-		1.0
-	);
-
-	vec4 res = invProjView * v;
-
-	res.x /= res.w;
-	res.y /= res.w;
-	res.z /= res.w;
-
-	return normalize(res.xyz);
+	vec4 v = invProjView * vec4(coord, 1.0, 1.0);
+	return normalize(v.xyz);
 }
 
 // Get the material of the block at the specified position in the world

@@ -92,7 +92,9 @@ namespace rc
 
 	void renderer::setCameraTarget(const glm::vec3& pos, const glm::vec3& target, float fov, float aspect)
 	{
-		glm::mat4 proj = glm::perspective(fov, aspect, 1.0f, 10.f);
+		// For some reason the projection changes when farZ is < 100.0, probably inaccuracies somewhere.
+		// Luckily for us, it doesn't matter what farZ we use.
+		glm::mat4 proj = glm::perspective(fov, aspect, 1.0f, 1000.f);
 		glm::mat4 view = glm::lookAt(pos, target, glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 invProjView = glm::inverse(proj * view);
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "invProjView"), 1, GL_FALSE, glm::value_ptr(invProjView));
