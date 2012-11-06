@@ -22,16 +22,21 @@ namespace rc
 
 		void drawFrame() const;
 
+		glm::vec3 pick(int x, int y) const;
+
 	private:
 		GLuint vertexShader, fragmentShader, shaderProgram;
 		GLuint vertexArray, vertexBuffer;
 		GLuint blockDataTexture;
 		GLuint materialsTexture;
+		GLuint pickFramebuffer, pickColorbuffer;
 
 		void initShaders();
 		GLuint loadShader(const std::string& path, GLenum type);
 
 		void initVertexData();
+
+		void initPickFramebuffer();
 
 		void loadMaterialTexture();
 	};

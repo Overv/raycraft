@@ -29,6 +29,7 @@ namespace rc
 		// Initialize OpenGL
 		initShaders();
 		initVertexData();
+		initPickFramebuffer();
 
 		// Load resources
 		loadMaterialTexture();
@@ -42,6 +43,11 @@ namespace rc
 
 	renderer::~renderer()
 	{
+		glDeleteTextures(1, &pickColorbuffer);
+		glDeleteFramebuffers(1, &pickFramebuffer);
+
+		glDeleteTextures(1, &materialsTexture);
+
 		if (blockDataTexture > 0) {
 			glDeleteTextures(1, &blockDataTexture);
 		}
@@ -117,6 +123,28 @@ namespace rc
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
+	glm::vec3 renderer::pick(int x, int y) const
+	{
+		// Draw scene in picking mode
+		glBindFramebuffer(GL_FRAMEBUFFER, pickFramebuffer);
+		glUniform1ui(glGetUniformLocation(shaderProgram, "pickMode"), GL_TRUE);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// Read position from selected pixel in window coordinates (y-flipped)
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
+		GLubyte pixel[3];
+		glReadPixels(x, viewport[3] - y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+
+		// Return to normal rendering mode
+		glUniform1ui(glGetUniformLocation(shaderProgram, "pickMode"), GL_FALSE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return glm::vec3(pixel[0], pixel[1], pixel[2]);
+	}
+
 	void renderer::initShaders()
 	{
 		vertexShader = loadShader("renderer.vert", GL_VERTEX_SHADER);
@@ -180,6 +208,31 @@ namespace rc
 		// Bind vertex data
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
+	}
+
+	void renderer::initPickFramebuffer()
+	{
+		// Create frame buffer to hold picking result
+		glGenFramebuffers(1, &pickFramebuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, pickFramebuffer);
+
+		// Create texture to hold color buffer
+		glGenTextures(1, &pickColorbuffer);
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, pickColorbuffer);
+
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewport[2], viewport[3], 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Attach color buffer
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pickColorbuffer, 0);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void renderer::loadMaterialTexture()

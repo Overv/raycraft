@@ -3,6 +3,9 @@
 layout(location = 0) out vec4 outColor;
 in vec2 _position;
 
+// Mode
+uniform bool pickMode;
+
 // View info
 uniform vec3 viewOrigin;
 uniform mat4 invProjView;
@@ -149,7 +152,11 @@ void main()
 
 	// Move out of the world along the ray direction and find the first position inside the world that is hit
 	if (!rayCube(viewOrigin - rayDir * sx * sy * sz, rayDir, vec3(0, 0, 0), vec3(sx, sy, sz), hitP, hitN)) {
-		outColor = skyColor;
+		if (pickMode)
+			outColor = vec4(1.0, 1.0, 1.0, 1.0);
+		else
+			outColor = skyColor;
+
 		return;
 	}
 
@@ -171,12 +178,19 @@ void main()
 			if (iterations > 0)
 				hitN = -hitN;
 
-			outColor = blockColor(coord, hitP, hitN);
+			if (pickMode)
+				outColor = vec4(coord / 255.0, 1.0);
+			else
+				outColor = blockColor(coord, hitP, hitN);
+
 			return;
 		}
 
 		iterations++;
 	}
 
-	outColor = skyColor;
+	if (pickMode)
+		outColor = vec4(1.0, 1.0, 1.0, 1.0);
+	else
+		outColor = skyColor;
 }
