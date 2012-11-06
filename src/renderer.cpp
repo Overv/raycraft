@@ -78,6 +78,11 @@ namespace rc
 		glUniform1ui(glGetUniformLocation(shaderProgram, "sx"), w.sizeX());
 		glUniform1ui(glGetUniformLocation(shaderProgram, "sy"), w.sizeY());
 		glUniform1ui(glGetUniformLocation(shaderProgram, "sz"), w.sizeZ());
+
+		// Set iteration limit based on world size
+		// I am sure there is a theoretical limit, but I haven't been able to establish it yet
+		int maxIterations = w.sizeX() + w.sizeY() + w.sizeZ();
+		glUniform1ui(glGetUniformLocation(shaderProgram, "maxIterations"), maxIterations);
 	}
 
 	void renderer::setSkyColor(const glm::vec3& color)

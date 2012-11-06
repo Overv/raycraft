@@ -32,6 +32,7 @@ int main()
 	rc::world world(3, 3, 3);
 	world.createFlatWorld(1);
 	world.set(1, 1, 1, rc::material::WOOD);
+	world.set(2, 2, 0, rc::material::EMPTY);
 
 	// Create renderer
 	rc::renderer renderer;

@@ -13,6 +13,7 @@ uniform sampler2D materials;
 uniform float materialCount;
 uniform uint sx, sy, sz;
 uniform vec4 skyColor;
+uniform uint maxIterations;
 
 // Project screen space vector in object space
 vec3 unproject(vec2 coord)
@@ -114,28 +115,27 @@ bool rayCube(vec3 origin, vec3 dir, vec3 pos, vec3 size, out vec3 hitPos, out ve
 vec4 blockColor(ivec3 block, vec3 pos, vec3 normal)
 {
 	vec3 localPos = pos - block;
-	float mat = float(getBlock(block) - 1) * 1.0 / materialCount;
+	uint mat = getBlock(block);
+	float matOffset = float(mat - 1) * 1.0 / materialCount;
+
+	// Exception for grass, which uses the dirt texture on the sides if a block is on top of it
+	if (mat == 1 && abs(normal.x) + abs(normal.y) > 0.0 && getBlock(block + ivec3(0, 0, 1)) != 0) {
+		if (abs(normal.x) > 0.0) {
+			return texture(materials, vec2(matOffset + localPos.y / materialCount, 0.5 - localPos.z / 4.0));
+		} else {
+			return texture(materials, vec2(matOffset + localPos.x / materialCount, 0.5 - localPos.z / 4.0));
+		}
+	}
 
 	if (normal.z > 0.0) {
-		return texture(materials, vec2(mat + localPos.x / materialCount, localPos.y / materialCount));
+		return texture(materials, vec2(matOffset + localPos.x / materialCount, 0.25 - localPos.y / materialCount));
 	} else if (normal.z < 0.0) {
-		return texture(materials, vec2(mat + localPos.x / materialCount, 0.25 + localPos.y / 4.0));
+		return texture(materials, vec2(matOffset + localPos.x / materialCount, 0.5 - localPos.y / 4.0));
 	} else if (abs(normal.x) > 0.0) {
-		return texture(materials, vec2(mat + localPos.y / materialCount, 0.75 - localPos.z / 4.0));
+		return texture(materials, vec2(matOffset + localPos.y / materialCount, 0.75 - localPos.z / 4.0));
 	} else {
-		return texture(materials, vec2(mat + localPos.x / materialCount, 1.0 - localPos.z / 4.0));
+		return texture(materials, vec2(matOffset + localPos.x / materialCount, 1.0 - localPos.z / 4.0));
 	}
-}
-
-// Corrects the normal using the ray direction
-void correctNormal(inout vec3 normal, vec3 rayDir)
-{
-	if (abs(normal.x) > 0.0 && sign(normal.x) == sign(rayDir.x))
-		normal.x = -normal.x;
-	else if (abs(normal.y) > 0.0 && sign(normal.y) == sign(rayDir.y))
-		normal.y = -normal.y;
-	else if (abs(normal.z) > 0.0 && sign(normal.z) == sign(rayDir.z))
-		normal.z *= -1.0;
 }
 
 void main()
@@ -158,17 +158,19 @@ void main()
 	ivec3 coord;
 	int iterations = 0;
 
-	while (iterations < 9999 && hitP.x > -0.001 && hitP.y > -0.001 && hitP.z > -0.001 && hitP.x < float(sx) + 0.001 && hitP.y < float(sy) + 0.001 && hitP.z < float(sz) + 0.001)
+	while (iterations < maxIterations && hitP.x > -0.001 && hitP.y > -0.001 && hitP.z > -0.001 && hitP.x < float(sx) + 0.001 && hitP.y < float(sy) + 0.001 && hitP.z < float(sz) + 0.001)
 	{
-		if (iterations > 0) rayCube(rayPos, rayDir, coord, vec3(1, 1, 1), hitP, hitN);
+		if (iterations > 0) {
+			rayCube(rayPos, rayDir, coord, vec3(1, 1, 1), hitP, hitN);
+		}
 
 		rayPos = hitP.xyz + rayDir * 0.0001;
 		coord = toBlock(rayPos, rayDir);
 
 		if (getBlock(coord) != 0) {
-			// The normal is currently the one for the previous block
-			// For example, if we hit the top of a block through the bottom of an empty block, we have normal = (0, 0, -1)
-			correctNormal(hitN, rayDir);
+			// Normal has to be flipped, because it's from the side of the previous block
+			if (iterations > 0)
+				hitN = -hitN;
 
 			outColor = blockColor(coord, hitP, hitN);
 			return;
