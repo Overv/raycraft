@@ -147,8 +147,8 @@ void main()
 	vec3 hitP;
 	vec3 hitN;
 
-	// Assuming we're outside of the world, find the first block in the world that is hit
-	if (!rayCube(viewOrigin, rayDir, vec3(0, 0, 0), vec3(sx, sy, sz), hitP, hitN)) {
+	// Move out of the world along the ray direction and find the first position inside the world that is hit
+	if (!rayCube(viewOrigin - rayDir * sx * sy * sz, rayDir, vec3(0, 0, 0), vec3(sx, sy, sz), hitP, hitN)) {
 		outColor = skyColor;
 		return;
 	}
