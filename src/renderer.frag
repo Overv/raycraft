@@ -26,6 +26,7 @@ uint getBlock(ivec3 coords)
 }
 
 // Convert floating point position to block coordinates
+// The raytracing direction is used for correction
 ivec3 toBlock(vec3 pos, vec3 dir)
 {
 	if ((dir.x < 0.0 && pos.x < 0.001) || (dir.y < 0.0 && pos.y < 0.001) || (dir.z < 0.0 && pos.z < 0.001))
@@ -118,8 +119,8 @@ void main()
 		return;
 	}
 
-	// Further iterations
-	for (int i = 0; i < 6; i++)
+	// Iterate until the end of the world has been reached
+	while (hit.x > -0.001 && hit.y > -0.001 && hit.z > -0.001 && hit.x < float(sx) + 0.001 && hit.y < float(sy) + 0.001 && hit.z < float(sz) + 0.001)
 	{
 		hit = rayCube(pos, rayDir, coord, vec3(1, 1, 1));
 		pos = hit.xyz + rayDir * 0.001;

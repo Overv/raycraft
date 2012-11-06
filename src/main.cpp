@@ -66,6 +66,7 @@ int main()
 			curTime = time(nullptr);
 		}
 
+		// Seems to work smoother than vsync for now
 		glfwSleep(0.016);
 	}
 
