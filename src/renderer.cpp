@@ -123,7 +123,7 @@ namespace rc
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
-	glm::vec3 renderer::pick(int x, int y) const
+	void renderer::pick(int x, int y, glm::vec3& pos, glm::vec3& normal) const
 	{
 		// Draw scene in picking mode
 		glBindFramebuffer(GL_FRAMEBUFFER, pickFramebuffer);
@@ -131,18 +131,27 @@ namespace rc
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		// Read position from selected pixel in window coordinates (y-flipped)
+		// Read position and normal from selected pixel in window coordinates (y-flipped)
 		GLint viewport[4];
 		glGetIntegerv(GL_VIEWPORT, viewport);
 
-		GLubyte pixel[3];
-		glReadPixels(x, viewport[3] - y, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, pixel);
+		GLubyte pixel[4];
+		glReadPixels(x, viewport[3] - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+
+		pos = glm::vec3(pixel[0], pixel[1], pixel[2]);
+
+		switch (pixel[3]) {
+			case 0: normal = glm::vec3(1, 0, 0); break;
+			case 1: normal = glm::vec3(-1, 0, 0); break;
+			case 2: normal = glm::vec3(0, 1, 0); break;
+			case 3: normal = glm::vec3(0, -1, 0); break;
+			case 4: normal = glm::vec3(0, 0, 1); break;
+			case 5: normal = glm::vec3(0, 0, -1); break;
+		}
 
 		// Return to normal rendering mode
 		glUniform1ui(glGetUniformLocation(shaderProgram, "pickMode"), GL_FALSE);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		return glm::vec3(pixel[0], pixel[1], pixel[2]);
 	}
 
 	void renderer::initShaders()
@@ -224,7 +233,7 @@ namespace rc
 
 		GLint viewport[4];
 		glGetIntegerv(GL_VIEWPORT, viewport);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, viewport[2], viewport[3], 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport[2], viewport[3], 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

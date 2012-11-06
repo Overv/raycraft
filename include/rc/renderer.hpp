@@ -22,7 +22,7 @@ namespace rc
 
 		void drawFrame() const;
 
-		glm::vec3 pick(int x, int y) const;
+		void pick(int x, int y, glm::vec3& pos, glm::vec3& normal) const;
 
 	private:
 		GLuint vertexShader, fragmentShader, shaderProgram;

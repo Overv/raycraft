@@ -39,7 +39,7 @@ int main()
 	renderer.setWorld(world);
 
 	// Main loop
-	int frames = 0, curTime = time(nullptr), curMouse = 0;
+	int frames = 0, curTime = time(nullptr), curMouseLeft = 0, curMouseRight = 0;
 	char titleBuf[128];
 
 	while(glfwGetWindowParam(GLFW_OPENED))
@@ -50,15 +50,22 @@ int main()
 		// Draw frame
 		renderer.drawFrame();
 		
-		// Do picking
-		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) != curMouse) {
-			if (curMouse == GLFW_PRESS) {
-				int x, y; glfwGetMousePos(&x, &y);
-				glm::vec3 coord = renderer.pick(x, y);
-				world.set(coord.x, coord.y, coord.z, rc::material::EMPTY);
+		// Use picking to destroy and create blocks
+		if (glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT) != curMouseLeft || glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT) != curMouseRight) {
+			int x, y;
+			glfwGetMousePos(&x, &y);
+
+			glm::vec3 pos, normal;
+			renderer.pick(x, y, pos, normal);
+
+			if (curMouseLeft == GLFW_PRESS) {
+				world.set(pos.x, pos.y, pos.z, rc::material::EMPTY);
+			} else if (curMouseRight == GLFW_PRESS) {
+				world.set(pos.x + normal.x, pos.y + normal.y, pos.z + normal.z, rc::material::GRASS);
 			}
 
-			curMouse = glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT);
+			curMouseLeft = glfwGetMouseButton(GLFW_MOUSE_BUTTON_LEFT);
+			curMouseRight = glfwGetMouseButton(GLFW_MOUSE_BUTTON_RIGHT);
 		}
 
 		// Present

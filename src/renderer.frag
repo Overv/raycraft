@@ -141,6 +141,17 @@ vec4 blockColor(ivec3 block, vec3 pos, vec3 normal)
 	}
 }
 
+// Convert a side normal to a single float value (used for picking)
+float normalAlpha(vec3 normal)
+{
+	if (normal.x > 0.0) return 0.0 / 255.0;
+	if (normal.x < 0.0) return 1.0 / 255.0;
+	if (normal.y > 0.0) return 2.0 / 255.0;
+	if (normal.y < 0.0) return 3.0 / 255.0;
+	if (normal.z > 0.0) return 4.0 / 255.0;
+	if (normal.z < 0.0) return 5.0 / 255.0;
+}
+
 void main()
 {
 	vec3 rayDir = unproject(_position);
@@ -179,7 +190,7 @@ void main()
 				hitN = -hitN;
 
 			if (pickMode)
-				outColor = vec4(coord / 255.0, 1.0);
+				outColor = vec4(coord / 255.0, normalAlpha(hitN));
 			else
 				outColor = blockColor(coord, hitP, hitN);
 
