@@ -13,7 +13,8 @@ The implementation will be based on `OpenGL 4.0`. More details will follow as th
 
 ## Todo
 
-* Support for materials and textures
+* Support for more materials
+* Fix normals
 * Support raytracing from inside world
 * Navigating through the world
 * Modifying the world

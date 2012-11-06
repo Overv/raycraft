@@ -4,6 +4,8 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <SOIL.h>
+
 #include <fstream>
 #include <vector>
 
@@ -27,6 +29,9 @@ namespace rc
 		// Initialize OpenGL
 		initShaders();
 		initVertexData();
+
+		// Load resources
+		loadMaterialTexture();
 
 		// Set defaults
 		setSkyColor(glm::vec3(127.0f/255.0f, 204.0f/255.0f, 255.0f/255.0f));
@@ -56,12 +61,9 @@ namespace rc
 		}
 
 		// Prepare data for shader
-		// Blocks where all sides face other blocks cannot be seen, so can be considered empty
 		std::vector<unsigned int> blockData(w.sizeX() * w.sizeY() * w.sizeZ());
-		for (int x = 0; x < w.sizeX(); x++)
-			for (int y = 0; y < w.sizeY(); y++)
-				for (int z = 0; z < w.sizeZ(); z++)
-					blockData[w.toFlatIndex(x, y, z)] = w.is_surrounded(x, y, z) ? material::EMPTY : w.get(x, y, z);
+		for (int i = 0; i < w.sizeX() * w.sizeY() * w.sizeZ(); i++)
+			blockData[i] = w.get(i);
 
 		// Upload data as texture
 		glActiveTexture(GL_TEXTURE0);
@@ -165,5 +167,31 @@ namespace rc
 		// Bind vertex data
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(0);
+	}
+
+	void renderer::loadMaterialTexture()
+	{
+		int w, h;
+		unsigned char* pixels = SOIL_load_image("materials.png", &w, &h, 0, SOIL_LOAD_RGB);
+		if (pixels == NULL) pixels = SOIL_load_image("bin/materials.png", &w, &h, 0, SOIL_LOAD_RGB);
+
+		if (pixels == NULL) {
+			printf("Couldn't load texture file 'materials.png'!\n");
+			return;
+		}
+
+		glActiveTexture(GL_TEXTURE1);
+
+		glGenTextures(1, &materialsTexture);
+		glBindTexture(GL_TEXTURE_2D, materialsTexture);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+		
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glUniform1i(glGetUniformLocation(shaderProgram, "materials"), 1);
+
+		SOIL_free_image_data(pixels);
 	}
 }

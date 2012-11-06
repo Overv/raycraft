@@ -6,8 +6,8 @@ CCFLAGS = -O3 -std=c++0x
 
 # Program
 
-bin/raycraft: bin/main.o bin/world.o bin/renderer.o bin/gl3w.o bin/renderer.vert bin/renderer.frag
-	$(CC) $(CCFLAGS) bin/main.o bin/renderer.o bin/world.o bin/gl3w.o -o bin/raycraft -lglfw
+bin/raycraft: bin/main.o bin/world.o bin/renderer.o bin/gl3w.o bin/renderer.vert bin/renderer.frag bin/materials.png
+	$(CC) $(CCFLAGS) bin/main.o bin/renderer.o bin/world.o bin/gl3w.o -o bin/raycraft -lglfw -lSOIL
 
 bin/main.o: bin src/main.cpp
 	$(CC) $(CCFLAGS) -c -I include -I extlibs src/main.cpp -o bin/main.o
@@ -25,6 +25,9 @@ bin/renderer.vert: bin src/renderer.vert
 
 bin/renderer.frag: bin src/renderer.frag
 	cp src/renderer.frag bin/renderer.frag
+
+bin/materials.png: bin res/materials.png
+	cp res/materials.png bin/materials.png
 
 # External dependencies
 

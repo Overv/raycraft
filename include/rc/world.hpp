@@ -34,8 +34,7 @@ namespace rc
 		void set(int x, int y, int z, material::material_t mat);
 
 		material::material_t get(int x, int y, int z) const;
-
-		bool is_surrounded(int x, int y, int z) const;
+		material::material_t get(int i) const;
 
 		int toFlatIndex(int x, int y, int z) const;
 

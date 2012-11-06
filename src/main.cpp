@@ -53,6 +53,7 @@ int main()
 		// Draw frame
 		renderer.drawFrame();
 
+		// Present
 		glfwSwapBuffers();
 
 		// Measure and display fps

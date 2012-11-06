@@ -26,11 +26,14 @@ namespace rc
 		GLuint vertexShader, fragmentShader, shaderProgram;
 		GLuint vertexArray, vertexBuffer;
 		GLuint blockDataTexture;
+		GLuint materialsTexture;
 
 		void initShaders();
 		GLuint loadShader(const std::string& path, GLenum type);
 
 		void initVertexData();
+
+		void loadMaterialTexture();
 	};
 }
 

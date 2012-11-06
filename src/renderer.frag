@@ -9,6 +9,7 @@ uniform mat4 invProjView;
 
 // World info
 uniform usampler3D blockData;
+uniform sampler2D materials;
 uniform uint sx, sy, sz;
 uniform vec4 skyColor;
 
@@ -46,90 +47,116 @@ vec3 rayPlaneIntersect(vec3 linePos, vec3 lineDir, vec3 planePos, vec3 planeNorm
 }
 
 // Find the position where a line and a cube intersect each other
-vec4 rayCube(vec3 origin, vec3 dir, vec3 pos, vec3 size)
+bool rayCube(vec3 origin, vec3 dir, vec3 pos, vec3 size, out vec3 hitPos, out vec3 hitNormal)
 {
 	// Transform world so that cube is located at (0, 0, 0) to simplify math
 	origin -= pos;
 
 	float dist = 1.0 / 0.0;
-	vec3 temp, final;
+	vec3 temp, final, norm;
 
 	// Bottom
-	temp = rayPlaneIntersect(origin, dir, vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 1.0));
+	temp = rayPlaneIntersect(origin, dir, vec3(0, 0, 0), vec3(0, 0, 1));
 	if (temp.x > 0.0 && temp.x < size.x && temp.y > 0.0 && temp.y < size.y && distance(origin, temp) < dist) {
 		dist = distance(origin, temp);
 		final = temp;
+		norm = vec3(0, 0, -1);
 	}
 
 	// Top
-	temp = rayPlaneIntersect(origin, dir, vec3(0.0, 0.0, size.z), vec3(0.0, 0.0, 1.0));
+	temp = rayPlaneIntersect(origin, dir, vec3(0, 0, size.z), vec3(0, 0, 1));
 	if (temp.x > 0.0 && temp.x < size.x && temp.y > 0.0 && temp.y < size.y && distance(origin, temp) < dist) {
 		dist = distance(origin, temp);
 		final = temp;
+		norm = vec3(0, 0, 1);
 	}
 
 	// Left
-	temp = rayPlaneIntersect(origin, dir, vec3(0.0, 0.0, 0.0), vec3(-1.0, 0.0, 0.0));
+	temp = rayPlaneIntersect(origin, dir, vec3(0, 0, 0), vec3(-1, 0, 0));
 	if (temp.y > 0.0 && temp.y < size.y && temp.z > 0.0 && temp.z < size.z && distance(origin, temp) < dist) {
 		dist = distance(origin, temp);
 		final = temp;
+		norm = vec3(-1, 0, 0);
 	}
 
 	// Right
-	temp = rayPlaneIntersect(origin, dir, vec3(size.x, 0.0, 0.0), vec3(1.0, 0.0, 0.0));
+	temp = rayPlaneIntersect(origin, dir, vec3(size.x, 0, 0), vec3(1, 0, 0));
 	if (temp.y > 0.0 && temp.y < size.y && temp.z > 0.0 && temp.z < size.z && distance(origin, temp) < dist) {
 		dist = distance(origin, temp);
 		final = temp;
+		norm = vec3(1, 0, 0);
 	}
 
 	// Rear
-	temp = rayPlaneIntersect(origin, dir, vec3(0.0, 0.0, 0.0), vec3(0.0, -1.0, 0.0));
+	temp = rayPlaneIntersect(origin, dir, vec3(0, 0, 0), vec3(0, -1, 0));
 	if (temp.x > 0.0 && temp.x < size.x && temp.z > 0.0 && temp.z < size.z && distance(origin, temp) < dist) {
 		dist = distance(origin, temp);
 		final = temp;
+		norm = vec3(0, -1, 0);
 	}
 
 	// Front
-	temp = rayPlaneIntersect(origin, dir, vec3(0.0, size.y, 0.0), vec3(0.0, 1.0, 0.0));
+	temp = rayPlaneIntersect(origin, dir, vec3(0, size.y, 0), vec3(0, 1, 0));
 	if (temp.x > 0.0 && temp.x < size.x && temp.z > 0.0 && temp.z < size.z && distance(origin, temp) < dist) {
 		dist = distance(origin, temp);
 		final = temp;
+		norm = vec3(0, 1, 0);
 	}
 
-	return vec4(pos + final, dist);
+	hitPos = pos + final;
+	hitNormal = norm;
+	
+	return !isinf(dist);
+}
+
+// Get the color of a block at a certain point
+vec4 blockColor(ivec3 block, vec3 pos, vec3 normal)
+{
+	vec3 localPos = pos - block;
+
+	if (normal.z > 0.0) {
+		return texture(materials, vec2(localPos.x / 4.0, localPos.y / 4.0));
+	} else if (normal.z < 0.0) {
+		return texture(materials, vec2(localPos.x / 4.0, localPos.y / 4.0 + 0.25));
+	} else if (abs(normal.x) > 0.0) {
+		return texture(materials, vec2(localPos.y / 4.0, 0.75 - localPos.z / 4.0));
+	} else {
+		return texture(materials, vec2(localPos.x / 4.0, 1.0 - localPos.z / 4.0));
+	}
 }
 
 void main()
 {
 	vec3 rayDir = unproject(_position);
 
+	// Ray tracing state
+	vec3 rayPos;
+	vec3 hitP;
+	vec3 hitN;
+
 	// Assuming we're outside of the world, find the first block in the world that is hit
-	vec4 hit = rayCube(viewOrigin, rayDir, vec3(0, 0, 0), vec3(sx, sy, sz));
-	if (isinf(hit.w)) {
+	if (!rayCube(viewOrigin, rayDir, vec3(0, 0, 0), vec3(sx, sy, sz), hitP, hitN)) {
 		outColor = skyColor;
 		return;
 	}
 
-	// Initial iteration
-	vec3 pos = hit.xyz + rayDir * 0.001;
-	ivec3 coord = toBlock(pos, rayDir);
-
-	if (getBlock(coord) != 0) {
-		outColor = vec4(1.0, 1.0, 1.0, 1.0);
-		return;
-	}
-
 	// Iterate until the end of the world has been reached
-	while (hit.x > -0.001 && hit.y > -0.001 && hit.z > -0.001 && hit.x < float(sx) + 0.001 && hit.y < float(sy) + 0.001 && hit.z < float(sz) + 0.001)
+	bool first = true;
+	ivec3 coord;
+
+	while (hitP.x > -0.001 && hitP.y > -0.001 && hitP.z > -0.001 && hitP.x < float(sx) + 0.001 && hitP.y < float(sy) + 0.001 && hitP.z < float(sz) + 0.001)
 	{
-		hit = rayCube(pos, rayDir, coord, vec3(1, 1, 1));
-		pos = hit.xyz + rayDir * 0.001;
-		coord = toBlock(pos, rayDir);
+		if (!first) rayCube(rayPos, rayDir, coord, vec3(1, 1, 1), hitP, hitN);
+
+		rayPos = hitP.xyz + rayDir * 0.001;
+		coord = toBlock(rayPos, rayDir);
 
 		if (getBlock(coord) != 0) {
-			outColor = vec4(1.0, 1.0, 1.0, 1.0);
+			outColor = blockColor(coord, hitP, hitN);
 			return;
 		}
+
+		first = false;
 	}
 
 	outColor = skyColor;

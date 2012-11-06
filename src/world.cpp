@@ -36,15 +36,12 @@ namespace rc
 			return material::EMPTY;
 	}
 
-	bool world::is_surrounded(int x, int y, int z) const
+	material::material_t world::get(int i) const
 	{
-		return
-			get(x - 1, y, z) != material::EMPTY &&
-			get(x + 1, y, z) != material::EMPTY &&
-			get(x, y - 1, z) != material::EMPTY &&
-			get(x, y + 1, z) != material::EMPTY &&
-			get(x, y, z - 1) != material::EMPTY &&
-			get(x, y, z + 1) != material::EMPTY;
+		if (i < sx * sy * sz)
+			return blocks[i];
+		else
+			return material::EMPTY;
 	}
 
 	int world::toFlatIndex(int x, int y, int z) const
