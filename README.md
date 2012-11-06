@@ -21,6 +21,10 @@ The ray tracer finds the first coordinate inside the world as reached when follo
 
 The largest difference between this rendering approach and Minecraft's rasterization approach is that the concept of building chunks doesn't exist. Modifying the world is as simple as a single `glTexSubImage3D` call. It is of course still preferable to not have parts of the world in memory that are too far away besides the implementation defined 3D texture dimensions limits.
 
+## Performance
+
+Not much can be said about the performance until larger worlds have been tested, but right now performance is a problem that is very far away.
+
 ## Todo
 
 * Navigating through the world
