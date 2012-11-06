@@ -15,8 +15,8 @@ The implementation will be based on `OpenGL 4.0`. More details will follow as th
 
 * Fix normals
 * Support raytracing from inside world
-* Navigating through the world
 * Modifying the world
+* Navigating through the world
 
 ## License
 

@@ -145,10 +145,11 @@ void main()
 	// Iterate until the end of the world has been reached
 	bool first = true;
 	ivec3 coord;
+	int iterations = 0;
 
-	while (hitP.x > -0.001 && hitP.y > -0.001 && hitP.z > -0.001 && hitP.x < float(sx) + 0.001 && hitP.y < float(sy) + 0.001 && hitP.z < float(sz) + 0.001)
+	while (iterations < 9999 && hitP.x > -0.001 && hitP.y > -0.001 && hitP.z > -0.001 && hitP.x < float(sx) + 0.001 && hitP.y < float(sy) + 0.001 && hitP.z < float(sz) + 0.001)
 	{
-		if (!first) rayCube(rayPos, rayDir, coord, vec3(1, 1, 1), hitP, hitN);
+		if (iterations > 0) rayCube(rayPos, rayDir, coord, vec3(1, 1, 1), hitP, hitN);
 
 		rayPos = hitP.xyz + rayDir * 0.0001;
 		coord = toBlock(rayPos, rayDir);
@@ -158,7 +159,7 @@ void main()
 			return;
 		}
 
-		first = false;
+		iterations++;
 	}
 
 	outColor = skyColor;
