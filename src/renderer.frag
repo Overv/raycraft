@@ -150,7 +150,7 @@ void main()
 	{
 		if (!first) rayCube(rayPos, rayDir, coord, vec3(1, 1, 1), hitP, hitN);
 
-		rayPos = hitP.xyz + rayDir * 0.001;
+		rayPos = hitP.xyz + rayDir * 0.0001;
 		coord = toBlock(rayPos, rayDir);
 
 		if (getBlock(coord) != 0) {
