@@ -87,7 +87,7 @@ namespace rc
 
 		// Set iteration limit based on world size
 		int maxIterations = w.sizeX() + w.sizeY() + w.sizeZ();
-		glUniform1ui(glGetUniformLocation(shaderProgram, "maxIterations"), maxIterations);
+		glUniform1i(glGetUniformLocation(shaderProgram, "maxIterations"), maxIterations);
 
 		// Register callback for world updates
 		w.addBlockCallback([] (int x, int y, int z, material::material_t mat)

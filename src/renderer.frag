@@ -1,4 +1,4 @@
-#version 400
+#version 330
 
 layout(location = 0) out vec4 outColor;
 in vec2 _position;
@@ -16,7 +16,7 @@ uniform sampler2D materials;
 uniform float materialCount;
 uniform uint sx, sy, sz;
 uniform vec4 skyColor;
-uniform uint maxIterations;
+uniform int maxIterations;
 
 // Project screen space vector in object space
 vec3 unproject(vec2 coord)
@@ -26,9 +26,9 @@ vec3 unproject(vec2 coord)
 }
 
 // Get the material of the block at the specified position in the world
-uint getBlock(ivec3 coords)
+int getBlock(ivec3 coords)
 {
-	return texelFetch(blockData, coords, 0).x;
+	return int(texelFetch(blockData, coords, 0).x);
 }
 
 // Convert floating point position to block coordinates
@@ -118,7 +118,7 @@ bool rayCube(vec3 origin, vec3 dir, vec3 pos, vec3 size, out vec3 hitPos, out ve
 vec4 blockColor(ivec3 block, vec3 pos, vec3 normal)
 {
 	vec3 localPos = pos - block;
-	uint mat = getBlock(block);
+	int mat = getBlock(block);
 	float matOffset = float(mat - 1) * 1.0 / materialCount;
 
 	// Exception for grass, which uses the dirt texture on the sides if a block is on top of it
