@@ -28,14 +28,10 @@ int main()
 	glfwGetDesktopMode(&videoMode);
 	glfwSetWindowPos(videoMode.Width / 2 - WIDTH / 2, videoMode.Height / 2 - HEIGHT / 2);
 
-	// Create world with stairs
+	// Create simple world
 	rc::world world(3, 3, 3);
 	world.createFlatWorld(1);
-	world.set(0, 0, 1, rc::material::GRASS);
-	world.set(0, 0, 2, rc::material::GRASS);
-	world.set(0, 1, 1, rc::material::GRASS);
-	world.set(1, 0, 1, rc::material::GRASS);
-	world.set(1, 1, 1, rc::material::GRASS);
+	world.set(1, 1, 1, rc::material::WOOD);
 
 	// Create renderer
 	rc::renderer renderer;

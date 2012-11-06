@@ -10,6 +10,7 @@ uniform mat4 invProjView;
 // World info
 uniform usampler3D blockData;
 uniform sampler2D materials;
+uniform float materialCount;
 uniform uint sx, sy, sz;
 uniform vec4 skyColor;
 
@@ -113,15 +114,16 @@ bool rayCube(vec3 origin, vec3 dir, vec3 pos, vec3 size, out vec3 hitPos, out ve
 vec4 blockColor(ivec3 block, vec3 pos, vec3 normal)
 {
 	vec3 localPos = pos - block;
+	float mat = float(getBlock(block) - 1) * 1.0 / materialCount;
 
 	if (normal.z > 0.0) {
-		return texture(materials, vec2(localPos.x / 4.0, localPos.y / 4.0));
+		return texture(materials, vec2(mat + localPos.x / materialCount, localPos.y / materialCount));
 	} else if (normal.z < 0.0) {
-		return texture(materials, vec2(localPos.x / 4.0, localPos.y / 4.0 + 0.25));
+		return texture(materials, vec2(mat + localPos.x / materialCount, 0.25 + localPos.y / 4.0));
 	} else if (abs(normal.x) > 0.0) {
-		return texture(materials, vec2(localPos.y / 4.0, 0.75 - localPos.z / 4.0));
+		return texture(materials, vec2(mat + localPos.y / materialCount, 0.75 - localPos.z / 4.0));
 	} else {
-		return texture(materials, vec2(localPos.x / 4.0, 1.0 - localPos.z / 4.0));
+		return texture(materials, vec2(mat + localPos.x / materialCount, 1.0 - localPos.z / 4.0));
 	}
 }
 

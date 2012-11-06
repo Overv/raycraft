@@ -13,7 +13,10 @@ namespace rc
 		enum material_t
 		{
 			EMPTY,
-			GRASS
+			GRASS,
+			SAND,
+			STONE,
+			WOOD
 		};
 	}
 
