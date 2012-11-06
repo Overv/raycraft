@@ -14,7 +14,7 @@ namespace rc
 		renderer();
 		~renderer();
 
-		void setWorld(const world& w);
+		void setWorld(world& w);
 		void setSkyColor(const glm::vec3& color);
 
 		void setCameraDir(const glm::vec3& pos, const glm::vec3& dir, float fov, float aspect);

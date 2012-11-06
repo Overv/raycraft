@@ -2,6 +2,7 @@
 #define RC_WORLD_HPP
 
 #include <vector>
+#include <functional>
 
 namespace rc
 {
@@ -34,6 +35,8 @@ namespace rc
 		int sizeY() const;
 		int sizeZ() const;
 
+		void addBlockCallback(std::function<void (int x, int y, int z, material::material_t mat)> func);
+
 		void set(int x, int y, int z, material::material_t mat);
 
 		material::material_t get(int x, int y, int z) const;
@@ -44,6 +47,7 @@ namespace rc
 	private:
 		int sx, sy, sz;
 		std::vector<material::material_t> blocks;
+		std::vector<std::function<void (int x, int y, int z, material::material_t mat)>> callbacks;
 	};
 }
 

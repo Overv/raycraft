@@ -53,7 +53,7 @@ namespace rc
 		glDeleteShader(vertexShader);
 	}
 
-	void renderer::setWorld(const world& w)
+	void renderer::setWorld(world& w)
 	{
 		// Clean up previous data
 		if (blockDataTexture > 0) {
@@ -80,9 +80,15 @@ namespace rc
 		glUniform1ui(glGetUniformLocation(shaderProgram, "sz"), w.sizeZ());
 
 		// Set iteration limit based on world size
-		// I am sure there is a theoretical limit, but I haven't been able to establish it yet
 		int maxIterations = w.sizeX() + w.sizeY() + w.sizeZ();
 		glUniform1ui(glGetUniformLocation(shaderProgram, "maxIterations"), maxIterations);
+
+		// Register callback for world updates
+		w.addBlockCallback([] (int x, int y, int z, material::material_t mat)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			glTexSubImage3D(GL_TEXTURE_3D, 0, x, y, z, 1, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &mat);
+		});
 	}
 
 	void renderer::setSkyColor(const glm::vec3& color)

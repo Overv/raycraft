@@ -22,26 +22,37 @@ namespace rc
 	int world::sizeY() const { return sy; }
 	int world::sizeZ() const { return sz; }
 
+	void world::addBlockCallback(std::function<void (int x, int y, int z, material::material_t mat)> func)
+	{
+		callbacks.push_back(func);
+	}
+
 	void world::set(int x, int y, int z, material::material_t mat)
 	{
-		if (x >= 0 && y >= 0 && z >= 0 && x < sx && y < sy && z < sz)
+		if (x >= 0 && y >= 0 && z >= 0 && x < sx && y < sy && z < sz) {
 			blocks[toFlatIndex(x, y, z)] = mat;
+
+			for (auto f : callbacks)
+				f(x, y, z, mat);
+		}
 	}
 
 	material::material_t world::get(int x, int y, int z) const
 	{
-		if (x >= 0 && y >= 0 && z >= 0 && x < sx && y < sy && z < sz)
+		if (x >= 0 && y >= 0 && z >= 0 && x < sx && y < sy && z < sz) {
 			return blocks[toFlatIndex(x, y, z)];
-		else
+		} else {
 			return material::EMPTY;
+		}
 	}
 
 	material::material_t world::get(int i) const
 	{
-		if (i < sx * sy * sz)
+		if (i < sx * sy * sz) {
 			return blocks[i];
-		else
+		} else {
 			return material::EMPTY;
+		}
 	}
 
 	int world::toFlatIndex(int x, int y, int z) const

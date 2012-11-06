@@ -154,7 +154,6 @@ void main()
 	}
 
 	// Iterate until the end of the world has been reached
-	bool first = true;
 	ivec3 coord;
 	int iterations = 0;
 
