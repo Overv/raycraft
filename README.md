@@ -19,6 +19,8 @@ The world is currently uploaded as a 3D texture with a single 32-bit channel for
 
 The ray tracer finds the first coordinate inside the world as reached when following the direction of the ray and then continues stepping through the world until a non-empty block is found. It steps by doing a ray/cube intersection on the block its currently in and continues from the intersection point. This guarantees a maximum amount of iterations per pixel less than `sizeX+sizeY+sizeZ` where these are the dimensions of the world.
 
+The largest difference between this rendering approach and Minecraft's rasterization approach is that the concept of building chunks doesn't exist. Modifying the world is as simple as a single `glTexSubImage3D` call. It is of course still preferable to not have parts of the world in memory that are too far away besides the implementation defined 3D texture dimensions limits.
+
 ## Todo
 
 * Navigating through the world
