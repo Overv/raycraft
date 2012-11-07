@@ -36,4 +36,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\renderer.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\..\src\renderer.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

@@ -110,7 +110,7 @@ namespace rc
 	void renderer::setCameraTarget(const glm::vec3& pos, const glm::vec3& target, float fov, float aspect)
 	{
 		// For some reason the projection changes when farZ is < 100.0, probably inaccuracies somewhere.
-		// Luckily for us, it doesn't matter what farZ we use.
+		// Luckily for us, it doesn't really matter what farZ we use.
 		glm::mat4 proj = glm::perspective(fov, aspect, 1.0f, 1000.f);
 		glm::mat4 view = glm::lookAt(pos, target, glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 invProjView = glm::inverse(proj * view);
@@ -247,8 +247,8 @@ namespace rc
 	void renderer::loadMaterialTexture()
 	{
 		int w, h;
-		unsigned char* pixels = SOIL_load_image("materials.png", &w, &h, 0, SOIL_LOAD_RGB);
-		if (pixels == NULL) pixels = SOIL_load_image("bin/materials.png", &w, &h, 0, SOIL_LOAD_RGB);
+		unsigned char* pixels = SOIL_load_image("materials.png", &w, &h, 0, SOIL_LOAD_RGBA);
+		if (pixels == NULL) pixels = SOIL_load_image("bin/materials.png", &w, &h, 0, SOIL_LOAD_RGBA);
 
 		if (pixels == NULL) {
 			printf("Couldn't load texture file 'materials.png'!\n");
@@ -260,13 +260,13 @@ namespace rc
 		glGenTextures(1, &materialsTexture);
 		glBindTexture(GL_TEXTURE_2D, materialsTexture);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glUniform1i(glGetUniformLocation(shaderProgram, "materials"), 1);
-		glUniform1f(glGetUniformLocation(shaderProgram, "materialCount"), 4);
+		glUniform1f(glGetUniformLocation(shaderProgram, "materialCount"), 6);
 
 		SOIL_free_image_data(pixels);
 	}

@@ -2,9 +2,9 @@
 
 There have been many Minecraft clones already, but this one is a little different. The goal of this project is to be a proof of concept implementation of a voxel building game that uses ray tracing instead of rasterization for rendering. It should demonstrate that realtime ray tracing is already viable in specific scenarios on today's consumer hardware.
 
-<img src="http://i.imgur.com/m1uWN.png" alt="" />
+<img src="http://i.imgur.com/CE0Jd.png" alt="" />
 
-The sample program currently included rotates a 3 by 3 by 3 world that you can modify with your mouse.
+The sample program included shows off some of the features of the ray tracer.
 
 ## Requirements
 
@@ -23,11 +23,12 @@ The largest difference between this rendering approach and Minecraft's rasteriza
 
 ## Performance
 
-Not much can be said about the performance until larger worlds have been tested, but right now performance is a problem that is very far away.
+The performance is *reasonable*, support for larger worlds will require the ray tracer to be optimized better and there are rendering artefacts that need to be fixed.
 
 ## Todo
 
-* Navigating through the world
+* Fixing rendering artefacts, especially on larger worlds
+* Optimization
 
 ## License
 

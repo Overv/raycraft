@@ -152,30 +152,40 @@ float normalAlpha(vec3 normal)
 	if (normal.z < 0.0) return 5.0 / 255.0;
 }
 
-void main()
+// Check if position is inside world
+bool posInsideWorld(vec3 pos)
 {
-	vec3 rayDir = unproject(_position);
+	return pos.x >= 0.0 && pos.y >= 0.0 && pos.z >= 0.0 && pos.x <= sx && pos.y <= sy && pos.z <= sz;
+}
+
+// Traces a single ray and returns the resulting color
+vec4 rayTrace(vec3 rayStart, vec3 rayDir, out bool hit, out ivec3 hitBlock, out vec3 hitPos, out vec3 hitNormal)
+{
+	hit = false;
 
 	// Ray tracing state
+	ivec3 coord;
 	vec3 rayPos;
 	vec3 hitP;
 	vec3 hitN;
 
-	// Move out of the world along the ray direction and find the first position inside the world that is hit
-	if (!rayCube(viewOrigin - rayDir * sx * sy * sz, rayDir, vec3(0, 0, 0), vec3(sx, sy, sz), hitP, hitN)) {
-		if (pickMode)
-			outColor = vec4(1.0, 1.0, 1.0, 1.0);
-		else
-			outColor = skyColor;
-
-		return;
+	// Find the first position inside the world that is hit
+	if (posInsideWorld(rayStart)) {
+		coord = toBlock(rayStart, rayDir);
+		rayCube(rayStart, rayDir, coord, vec3(1, 1, 1), hitP, hitN);
+	} else {
+		if (!rayCube(rayStart, rayDir, vec3(0, 0, 0), vec3(sx, sy, sz), hitP, hitN)) {
+			if (pickMode)
+				return vec4(1.0, 1.0, 1.0, 1.0);
+			else
+				return skyColor;
+		}
 	}
 
 	// Iterate until the end of the world has been reached
-	ivec3 coord;
 	int iterations = 0;
 
-	while (iterations < maxIterations && hitP.x > -0.001 && hitP.y > -0.001 && hitP.z > -0.001 && hitP.x < float(sx) + 0.001 && hitP.y < float(sy) + 0.001 && hitP.z < float(sz) + 0.001)
+	while (iterations < maxIterations && coord.x > -1 && coord.y > -1 && coord.z > -1 && coord.x < int(sx) + 1 && coord.y < int(sy) + 1 && coord.z < int(sz) + 1)
 	{
 		if (iterations > 0) {
 			rayCube(rayPos, rayDir, coord, vec3(1, 1, 1), hitP, hitN);
@@ -184,24 +194,58 @@ void main()
 		rayPos = hitP.xyz + rayDir * 0.0001;
 		coord = toBlock(rayPos, rayDir);
 
-		if (getBlock(coord) != 0) {
+		if (getBlock(coord) != 0 && (pickMode || blockColor(coord, hitP, hitN).a > 0.5)) {
 			// Normal has to be flipped, because it's from the side of the previous block
-			if (iterations > 0)
+			if (iterations > 0 || posInsideWorld(rayStart))
 				hitN = -hitN;
 
-			if (pickMode)
-				outColor = vec4(coord / 255.0, normalAlpha(hitN));
-			else
-				outColor = blockColor(coord, hitP, hitN);
+			hit = true;
+			hitBlock = coord;
+			hitPos = hitP;
+			hitNormal = hitN;
 
-			return;
+			if (pickMode)
+				return vec4(coord / 255.0, normalAlpha(hitN));
+			else
+				return blockColor(coord, hitP, hitN);
 		}
 
 		iterations++;
 	}
 
 	if (pickMode)
-		outColor = vec4(1.0, 1.0, 1.0, 1.0);
+		return vec4(1.0, 1.0, 1.0, 1.0);
 	else
-		outColor = skyColor;
+		return skyColor;
+}
+
+void main()
+{
+	bool hit;
+	ivec3 hitBlock;
+	vec3 hitPos, hitNormal;
+	vec3 initialNormal = unproject(_position);
+
+	// Initial trace
+	outColor = rayTrace(viewOrigin, initialNormal, hit, hitBlock, hitPos, hitNormal);
+	ivec3 rootHitBlock = hitBlock;
+	vec3 rootHitPos = hitPos;
+	vec3 rootHitNormal = hitNormal;
+
+	// If a block was hit, do a simple lighting trace
+	if (!pickMode && hit) {
+		rayTrace(hitPos + hitNormal * 0.001, vec3(1, 1, 1), hit, hitBlock, hitPos, hitNormal);
+
+		if (hit)
+			outColor.xyz /= 2.0;
+		else {
+			// If a gold block was hit, do a simple reflection trace
+			if (getBlock(rootHitBlock) == 5) {
+				vec3 reflectNormal = 2 * rootHitNormal * dot(initialNormal, rootHitNormal) - initialNormal;
+				vec4 col = rayTrace(rootHitPos + rootHitNormal * 0.001, -reflectNormal, hit, hitBlock, hitPos, rootHitNormal);
+
+				outColor = mix(outColor, col, 0.3);
+			}
+		}
+	}
 }

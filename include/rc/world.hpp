@@ -17,7 +17,9 @@ namespace rc
 			GRASS,
 			SAND,
 			STONE,
-			WOOD
+			WOOD,
+			GOLD,
+			CAGE
 		};
 	}
 
