@@ -10,3 +10,7 @@ bin/*
 *.pdb
 *.idb
 *.opensdf
+*.ipch
+*.res
+*.manifest
+*.rc

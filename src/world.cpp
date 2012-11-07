@@ -32,8 +32,8 @@ namespace rc
 		if (x >= 0 && y >= 0 && z >= 0 && x < sx && y < sy && z < sz) {
 			blocks[toFlatIndex(x, y, z)] = mat;
 
-			for (auto f : callbacks)
-				f(x, y, z, mat);
+			for (int i = 0; i < callbacks.size(); i++)
+				callbacks[i](x, y, z, mat);
 		}
 	}
 
