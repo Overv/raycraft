@@ -19,7 +19,8 @@ namespace rc
 			STONE,
 			WOOD,
 			GOLD,
-			CAGE
+			CAGE,
+			LEAF
 		};
 	}
 

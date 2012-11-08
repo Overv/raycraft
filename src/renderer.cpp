@@ -266,7 +266,7 @@ namespace rc
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		glUniform1i(glGetUniformLocation(shaderProgram, "materials"), 1);
-		glUniform1f(glGetUniformLocation(shaderProgram, "materialCount"), 6);
+		glUniform1f(glGetUniformLocation(shaderProgram, "materialCount"), 7);
 
 		SOIL_free_image_data(pixels);
 	}

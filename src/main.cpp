@@ -51,6 +51,15 @@ int main()
 	world.set(4, 17, 5, rc::material::CAGE);
 	world.set(4, 17, 6, rc::material::CAGE);
 
+	// Tree
+	world.set(8, 12, 5, rc::material::WOOD);
+	world.set(8, 12, 6, rc::material::WOOD);
+	for (int x = 7; x <= 9; x++)
+		for (int y = 11; y <= 13; y++)
+			for (int z = 7; z <= 9; z++)
+				world.set(x, y, z, rc::material::LEAF);
+	world.set(8, 12, 7, rc::material::WOOD);
+
 	// Create renderer
 	rc::renderer renderer;
 	renderer.setWorld(world);
@@ -97,14 +106,14 @@ int main()
 			if (abs(lastMousePos[0] - x) < 2 && abs(lastMousePos[1] - y) < 2) {
 				glm::vec3 pos, normal;
 				renderer.pick(x, y, pos, normal);
-				world.set(pos.x + normal.x, pos.y + normal.y, pos.z + normal.z, rc::material::GRASS);
+				world.set(pos.x + normal.x, pos.y + normal.y, pos.z + normal.z, rc::material::STONE);
 			}
 
 			lastMouseRight = 0;
 		}
 
 		// Update view
-		renderer.setCameraTarget(glm::vec3(cos(yaw) * 17.0f + 10.0f, sin(yaw) * 17.0f + 10.0f, 12.0f), glm::vec3(10.0f, 10.0f, -3.0f), 70.0f, (float)WIDTH / (float)HEIGHT);
+		renderer.setCameraTarget(glm::vec3(cos(yaw) * 17.0f + 10.0f, sin(yaw) * 17.0f + 10.0f, 12.0f), glm::vec3(10.0f, 10.0f, 0.0f), 70.0f, (float)WIDTH / (float)HEIGHT);
 
 		// Draw frame
 		renderer.drawFrame();

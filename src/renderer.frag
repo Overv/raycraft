@@ -141,6 +141,12 @@ vec4 blockColor(ivec3 block, vec3 pos, vec3 normal)
 	}
 }
 
+bool isTransparent(ivec3 block, vec3 pos, vec3 normal)
+{
+	vec4 col = blockColor(block, pos, normal);
+	return col.r > 0.9 && col.g < 0.1 && col.b > 0.9;
+}
+
 // Convert a side normal to a single float value (used for picking)
 float normalAlpha(vec3 normal)
 {
@@ -194,11 +200,13 @@ vec4 rayTrace(vec3 rayStart, vec3 rayDir, out bool hit, out ivec3 hitBlock, out 
 		rayPos = hitP.xyz + rayDir * 0.0001;
 		coord = toBlock(rayPos, rayDir);
 
-		if (getBlock(coord) != 0 && (pickMode || blockColor(coord, hitP, hitN).a > 0.5)) {
-			// Normal has to be flipped, because it's from the side of the previous block
-			if (iterations > 0 || posInsideWorld(rayStart))
-				hitN = -hitN;
+		// Normal has to be flipped, because it's from the side of the previous block
+		if (iterations > 0 || posInsideWorld(rayStart))
+			hitN = -hitN;
 
+		vec4 hitColor = blockColor(coord, hitP, hitN);
+
+		if (getBlock(coord) != 0 && (pickMode || hitColor.r < 0.9 || hitColor.g > 0.1 || hitColor.b < 0.9)) {
 			hit = true;
 			hitBlock = coord;
 			hitPos = hitP;
@@ -207,7 +215,7 @@ vec4 rayTrace(vec3 rayStart, vec3 rayDir, out bool hit, out ivec3 hitBlock, out 
 			if (pickMode)
 				return vec4(coord / 255.0, normalAlpha(hitN));
 			else
-				return blockColor(coord, hitP, hitN);
+				return hitColor;
 		}
 
 		iterations++;
@@ -243,6 +251,15 @@ void main()
 			if (getBlock(rootHitBlock) == 5) {
 				vec3 reflectNormal = 2 * rootHitNormal * dot(initialNormal, rootHitNormal) - initialNormal;
 				vec4 col = rayTrace(rootHitPos + rootHitNormal * 0.001, -reflectNormal, hit, hitBlock, hitPos, rootHitNormal);
+
+				// Do lighting trace for reflection
+				if (hit) {
+					rayTrace(hitPos + hitNormal * 0.001, vec3(1, 1, 1), hit, hitBlock, hitPos, hitNormal);
+
+					if (hit ) {
+						col /= 2.0;
+					}
+				}
 
 				outColor = mix(outColor, col, 0.3);
 			}
