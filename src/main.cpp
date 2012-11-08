@@ -22,7 +22,7 @@ int main()
 	glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
 	glfwOpenWindow(WIDTH, HEIGHT, 0, 0, 0, 0, 0, 0, GLFW_WINDOW);
 	glfwSetWindowTitle("raycraft");
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	// Center window on screen
 	GLFWvidmode videoMode;
