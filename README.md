@@ -1,6 +1,6 @@
 # raycraft
 
-There have been many Minecraft clones already, but this one is a little different. The goal of this project is to be a proof of concept implementation of a voxel building game that uses ray tracing instead of rasterization for rendering. It should demonstrate that realtime ray tracing is already viable in specific scenarios on today's consumer hardware.
+There have been many Minecraft clones already, but this one is a little different. The goal of this project is to be a proof of concept implementation of a voxel building game that uses ray tracing instead of rasterization for rendering.
 
 <img src="http://i.imgur.com/CE0Jd.png" alt="" />
 
